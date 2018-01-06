@@ -1,0 +1,20 @@
+version: '2'
+services:
+  weather:
+    build: .
+    container_name: weather
+    restart: always
+    env_file: ./.env
+    logging: 
+      options: 
+        max-size: '10m'
+        max-file: '1'
+    environment: 
+      VIRTUAL_HOST: 'weather.${HOSTNAME}'
+      VIRTUAL_PORT: '3000'
+    ports:
+      - 3000:3000
+networks: 
+  default:
+    external:
+      name: miot
