@@ -1,7 +1,7 @@
 miot-weather
 ============
 
-Controller app for Arc Reactor Indicator.
+Controller app for LED Informer.
 Handles requests via MQTT.
 
 Input messages
