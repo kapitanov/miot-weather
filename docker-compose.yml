@@ -12,8 +12,6 @@ services:
     environment: 
       VIRTUAL_HOST: 'weather.${HOSTNAME}'
       VIRTUAL_PORT: '3000'
-    ports:
-      - 3000:3000
 networks: 
   default:
     external:
