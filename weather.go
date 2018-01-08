@@ -62,6 +62,9 @@ func weatherUpdate() error {
 	defer lock.Unlock()
 
 	currentWeather = w
+	log.Printf("Now in %s %0f deg\n", city, w.Now)
+	mqttPublish()
+
 	return nil
 }
 
@@ -87,8 +90,6 @@ func weatherQuery() (*weather, error) {
 
 	var w weather
 	w.Now = output.Now
-
-	log.Printf("Now in %s %0f deg\n", city, w.Now)
 
 	return &w, nil
 }
