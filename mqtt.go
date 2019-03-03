@@ -17,7 +17,7 @@ var (
 const (
 	topicRequest = "/weather/request"
 	topicPush    = "/weather/update"
-	ClientID     = "miot-weather"
+	clientID     = "miot-weather"
 
 	mqttPort = 1883
 )
@@ -30,7 +30,7 @@ func mqttInit() error {
 
 	mqttOpts = mqtt.NewClientOptions()
 	mqttOpts.Servers = []*url.URL{mqttAddr}
-	mqttOpts.ClientID = ClientID
+	mqttOpts.ClientID = clientID
 	mqttOpts.Username = os.Getenv("MQTT_USERNAME")
 	mqttOpts.Password = os.Getenv("MQTT_PASSWORD")
 	mqttOpts.OnConnect = func(c mqtt.Client) {

@@ -1,10 +1,13 @@
 package main
 
 import (
-	"encoding/json"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
-	"os/exec"
+	"regexp"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -19,9 +22,10 @@ const (
 )
 
 var (
-	city           string
-	currentWeather *weather
-	lock           sync.Mutex
+	cityName         string
+	currentWeather   *weather
+	lock             sync.Mutex
+	temperatureRegex *regexp.Regexp
 )
 
 type yandexWeatherCliOutput struct {
@@ -30,10 +34,12 @@ type yandexWeatherCliOutput struct {
 }
 
 func weatherInit() error {
-	city = os.Getenv("WEATHER_CITY")
-	if city == "" {
-		city = defaultCity
+	cityName = os.Getenv("WEATHER_CITY")
+	if cityName == "" {
+		cityName = defaultCity
 	}
+
+	temperatureRegex = regexp.MustCompile(`(?i)<span class="temp__value">(.*?)</span>`)
 
 	err := weatherUpdate()
 	if err != nil {
@@ -62,7 +68,7 @@ func weatherUpdate() error {
 	defer lock.Unlock()
 
 	currentWeather = w
-	log.Printf("Now in %s %0f deg\n", city, w.Now)
+	log.Printf("Now in %s %0f deg\n", cityName, w.Now)
 	mqttPublish()
 
 	return nil
@@ -76,20 +82,26 @@ func weatherGet() *weather {
 }
 
 func weatherQuery() (*weather, error) {
-	cmd := exec.Command("yandex-weather-cli", "--json", city)
-	stdout, err := cmd.Output()
+	response, err := http.Get("https://yandex.ru/pogoda/" + cityName)
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+	content, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	var output yandexWeatherCliOutput
-	err = json.Unmarshal(stdout, &output)
+	stringContent := string(content)
+	str := temperatureRegex.FindStringSubmatch(stringContent)[1]
+	str = strings.Replace(str, "\u2212", "-", 1)
+	temperature, err := strconv.ParseFloat(str, 32)
 	if err != nil {
 		return nil, err
 	}
 
 	var w weather
-	w.Now = output.Now
+	w.Now = float32(temperature)
 
 	return &w, nil
 }

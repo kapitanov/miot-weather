@@ -14,17 +14,17 @@ func main() {
 	// Fetch initial data
 	err := weatherInit()
 	if err != nil {
-		log.Fatalln("failed to fetch initial data")
+		log.Fatalf("failed to fetch initial data: %s", err)
 	}
 
 	// Connect to MQTT
 	err = mqttInit()
 	if err != nil {
-		log.Fatalln("failed to connect to mqtt")
+		log.Fatalf("failed to connect to mqtt: %s", err)
 	}
 
 	// Run HTTP server
-	runHttp()
+	runHTTP()
 
 	// Wait for exit
 	ch := make(chan bool)

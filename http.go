@@ -13,7 +13,7 @@ const (
 	httpEndpoint = "0.0.0.0:3000"
 )
 
-func runHttp() {
+func runHTTP() {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/api/weather", httpGetWeather).Methods("GET")
